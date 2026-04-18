@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infinity Compagnie | Espace Membre</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --accent: #ff0000;
+            --bg: #000000;
+            --card: #0a0a0a;
+            --text-main: #ffffff;
+            --text-dim: #888888;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        .cursor-glow {
+            position: fixed; width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(255, 0, 0, 0.05) 0%, transparent 70%);
+            border-radius: 50%; pointer-events: none; z-index: 0; transform: translate(-50%, -50%);
+        }
+
+        /* NAVIGATION */
+        nav {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 20px 5%; position: fixed; width: 100%; top: 0; z-index: 1000;
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border); box-sizing: border-box;
+        }
+        .logo { font-weight: 900; font-size: 1.5rem; text-decoration: none; color: white; }
+        .logo span { color: var(--accent); }
+
+        .nav-right { display: flex; align-items: center; gap: 15px; }
+
+        .lang-switch {
+            background: #222; border: 1px solid var(--border); color: white;
+            padding: 5px 10px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.8rem;
+        }
+
+        .tab-nav { display: flex; gap: 8px; background: #111; padding: 5px; border-radius: 14px; }
+        .tab-btn {
+            background: none; border: none; color: var(--text-dim); padding: 8px 20px;
+            font-weight: 700; cursor: pointer; border-radius: 10px; transition: 0.3s; font-size: 0.8rem;
+        }
+        .tab-btn.active { background: var(--accent); color: white; }
+        .hidden { display: none !important; }
+
+        /* MODALES */
+        .modal {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.95);
+            display: none; align-items: center; justify-content: center; z-index: 2000;
+        }
+        .auth-card {
+            background: var(--card); border: 1px solid var(--border);
+            padding: 40px; border-radius: 32px; width: 90%; max-width: 400px; text-align: center;
+        }
+        .auth-card input {
+            width: 100%; padding: 15px; margin: 10px 0; border-radius: 12px;
+            border: 1px solid #222; background: #000; color: white; box-sizing: border-box;
+        }
+        .link-alt {
+            display: block; margin-top: 15px; color: var(--text-dim);
+            font-size: 0.8rem; cursor: pointer; text-decoration: underline;
+        }
+
+        /* CONTAINERS */
+        .container { max-width: 1200px; margin: 100px auto 0; padding: 40px 20px; display: none; }
+        .container.active { display: block; }
+
+        /* CARDS */
+        .pricing-grid { display: flex; justify-content: center; align-items: stretch; gap: 20px; flex-wrap: wrap; }
+        .price-card, .user-card {
+            background: var(--card); border: 1px solid var(--border); padding: 40px;
+            border-radius: 32px; flex: 1; min-width: 250px; max-width: 320px; display: flex; flex-direction: column; text-align: center;
+        }
+        .btn-action {
+            display: block; width: 100%; padding: 15px; background: white; color: black;
+            text-decoration: none; border-radius: 12px; font-weight: 800; margin-top: auto; cursor: pointer; border: none; transition: 0.3s;
+        }
+        .btn-action:hover { background: var(--accent); color: white; }
+        .btn-primary { background: var(--accent); color: white; margin-top: 10px; }
+
+        .cost { font-size: 2.5rem; font-weight: 900; margin: 15px 0; }
+        .cost span { font-size: 1rem; color: var(--accent); }
+    </style>
+</head>
+<body>
+
+    <div class="cursor-glow" id="glow"></div>
+
+    <nav>
+        <a href="#" class="logo">Infinity<span>.</span></a>
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="switchTab(event, 'pres')" data-i18n="nav_project">Projet</button>
+            <button class="tab-btn" onclick="switchTab(event, 'shop')" data-i18n="nav_pass">Pass</button>
+            <button id="nav-account" class="tab-btn hidden" onclick="switchTab(event, 'account')" data-i18n="nav_profile">Mon Profil</button>
+        </div>
+        
+        <div class="nav-right">
+            <select class="lang-switch" onchange="changeLanguage(this.value)">
+                <option value="fr">FR</option>
+                <option value="en">EN</option>
+            </select>
+            <button id="auth-btn" class="tab-btn" style="background:white; color:black; border-radius:10px;" onclick="openAuth('login')" data-i18n="btn_access">Accès</button>
+        </div>
+    </nav>
+
+    <div id="pres" class="container active">
+        <h1 style="text-align: center; font-size: 3.5rem;">FROZEN LAND <span style="color:var(--accent)">2026</span></h1>
+        <div style="width: 100%; aspect-ratio: 16/9; border-radius: 24px; overflow: hidden; border: 1px solid var(--border);">
+            <iframe src="https://www.youtube.com/embed/8AZ2tnH36oA" style="width:100%; height:100%; border:none;"></iframe>
+        </div>
+    </div>
+
+    <div id="shop" class="container">
+        <h2 style="text-align: center; margin-bottom: 40px;" data-i18n="shop_title">Boutique Officielle</h2>
+        <div class="pricing-grid">
+            <div class="price-card">
+                <h3 data-i18n="pass_eco_name">Pass Éco</h3>
+                <div class="cost">999<span>€</span></div>
+                <p style="color:var(--text-dim); margin-bottom: 20px;" data-i18n="pass_eco_desc">Accès standard au secteur 4.</p>
+                <button class="btn-action" onclick="buyPass('ÉCO')" data-i18n="btn_choose">Choisir</button>
+            </div>
+            <div class="price-card" style="border-color: var(--accent); transform: scale(1.05); z-index: 2;">
+                <div style="background: var(--accent); color: white; font-size: 0.7rem; font-weight: 800; padding: 5px; border-radius: 5px; width: fit-content; margin: -20px auto 10px;" data-i18n="badge_popular">POPULAIRE</div>
+                <h3 data-i18n="pass_gold_name">Pass Gold</h3>
+                <div class="cost">4 999<span>€</span></div>
+                <p style="color:var(--text-dim); margin-bottom: 20px;" data-i18n="pass_gold_desc">Accès prioritaire et pack de ski.</p>
+                <button class="btn-action" onclick="buyPass('GOLD')" data-i18n="btn_choose">Choisir</button>
+            </div>
+            <div class="price-card" style="border-color: #ffd700;">
+                <h3 data-i18n="pass_premium_name">Pass Premium</h3>
+                <div class="cost">9 999<span>€</span></div>
+                <p style="color:var(--text-dim); margin-bottom: 20px;" data-i18n="pass_premium_desc">Secteur Privé & Hébergement de luxe.</p>
+                <button class="btn-action" style="border: 1px solid #ffd700;" onclick="buyPass('PREMIUM')" data-i18n="btn_choose">Choisir</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="account" class="container">
+        <h2 style="text-align: center;"><span data-i18n="welcome">Bienvenue</span>, <span id="user-display" style="color:var(--accent);">Voyageur</span></h2>
+        <div style="display: flex; justify-content: center; margin-top: 30px;">
+            <div class="user-card" style="max-width: 500px; width: 100%;">
+                <h3 style="margin: 0; font-size: 0.8rem; letter-spacing: 2px;" data-i18n="status_title">VOTRE STATUT ACTUEL</h3>
+                <div id="pass-status" style="margin: 20px 0; font-size: 1.5rem; font-weight: 800; color: var(--text-dim);">
+                    Aucun pass actif
+                </div>
+                <hr style="border: 0; border-top: 1px solid var(--border); margin: 20px 0;">
+                <button class="btn-action" style="background: #111; color: white;" onclick="logout()" data-i18n="btn_logout">Se déconnecter</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="auth-modal" class="modal">
+        <div class="auth-card">
+            <div id="mode-login">
+                <h2 data-i18n="login_title">Connexion</h2>
+                <input type="text" id="login-user" placeholder="Identifiant">
+                <input type="password" id="login-pass" placeholder="Mot de passe">
+                <button class="btn-action btn-primary" onclick="handleLogin()" data-i18n="btn_login">Se connecter</button>
+                <span class="link-alt" onclick="openAuth('register')" data-i18n="link_register">Créer un compte</span>
+            </div>
+            <div id="mode-register" class="hidden">
+                <h2 data-i18n="register_title">Inscription</h2>
+                <input type="text" id="reg-user" placeholder="Identifiant">
+                <input type="password" id="reg-pass" placeholder="Mot de passe">
+                <button class="btn-action btn-primary" onclick="handleRegister()" data-i18n="btn_register_action">S'inscrire</button>
+                <span class="link-alt" onclick="openAuth('login')" data-i18n="link_back">Retour</span>
+            </div>
+            <button onclick="closeModal()" style="background:none; border:none; color:var(--text-dim); margin-top:20px; cursor:pointer;" data-i18n="btn_cancel">Annuler</button>
+        </div>
+    </div>
+
+    <script>
+        // --- TRADUCTIONS ---
+        const translations = {
+            fr: {
+                nav_project: "Projet", nav_pass: "Pass", nav_profile: "Mon Profil", btn_access: "Accès",
+                shop_title: "Boutique Officielle", pass_eco_name: "Pass Éco", pass_eco_desc: "Accès standard au secteur 4.",
+                pass_gold_name: "Pass Gold", pass_gold_desc: "Accès prioritaire et pack de ski.",
+                pass_premium_name: "Pass Premium", pass_premium_desc: "Secteur Privé & Hébergement de luxe.",
+                btn_choose: "Choisir", badge_popular: "POPULAIRE", welcome: "Bienvenue", status_title: "VOTRE STATUT ACTUEL",
+                btn_logout: "Se déconnecter", login_title: "Connexion", btn_login: "Se connecter", link_register: "Créer un compte",
+                register_title: "Inscription", btn_register_action: "S'inscrire", link_back: "Retour", btn_cancel: "Annuler",
+                no_pass: "Aucun pass actif", your_pass: "VOTRE PASS : "
+            },
+            en: {
+                nav_project: "Project", nav_pass: "Passes", nav_profile: "My Profile", btn_access: "Access",
+                shop_title: "Official Store", pass_eco_name: "Eco Pass", pass_eco_desc: "Standard access to sector 4.",
+                pass_gold_name: "Gold Pass", pass_gold_desc: "Priority access and ski pack.",
+                pass_premium_name: "Premium Pass", pass_premium_desc: "Private Sector & Luxury stay.",
+                btn_choose: "Choose", badge_popular: "POPULAR", welcome: "Welcome", status_title: "YOUR CURRENT STATUS",
+                btn_logout: "Logout", login_title: "Login", btn_login: "Sign In", link_register: "Create an account",
+                register_title: "Register", btn_register_action: "Sign Up", link_back: "Back", btn_cancel: "Cancel",
+                no_pass: "No active pass", your_pass: "YOUR PASS: "
+            }
+        };
+
+        let currentLang = 'fr';
+
+        function changeLanguage(lang) {
+            currentLang = lang;
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                el.innerText = translations[lang][key];
+            });
+            updateAccountUI(); // Rafraîchir le statut du pass avec la bonne langue
+        }
+
+        // --- CURSEUR ---
+        const glow = document.getElementById('glow');
+        window.addEventListener('mousemove', (e) => {
+            glow.style.left = e.clientX + 'px'; glow.style.top = e.clientY + 'px';
+        });
+
+        // --- NAVIGATION ---
+        function switchTab(evt, tabId) {
+            document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            if(evt) evt.currentTarget.classList.add('active');
+        }
+
+        // --- AUTH ---
+        function openAuth(mode) {
+            document.getElementById('auth-modal').style.display = 'flex';
+            document.getElementById('mode-login').classList.add('hidden');
+            document.getElementById('mode-register').classList.add('hidden');
+            document.getElementById('mode-' + mode).classList.remove('hidden');
+        }
+        function closeModal() { document.getElementById('auth-modal').style.display = 'none'; }
+        function getUsers() { return JSON.parse(localStorage.getItem('infinity_users')) || {}; }
+        function saveUsers(users) { localStorage.setItem('infinity_users', JSON.stringify(users)); }
+
+        function handleRegister() {
+            const u = document.getElementById('reg-user').value;
+            const p = document.getElementById('reg-pass').value;
+            if(!u || !p) return alert("Remplissez tout.");
+            let users = getUsers();
+            if(users[u]) return alert("Pseudo pris.");
+            users[u] = { password: p, pass: null };
+            saveUsers(users);
+            openAuth('login');
+        }
+
+        function handleLogin() {
+            const u = document.getElementById('login-user').value;
+            const p = document.getElementById('login-pass').value;
+            let users = getUsers();
+            if(users[u] && users[u].password === p) {
+                sessionStorage.setItem('activeUser', u);
+                checkAuth();
+                closeModal();
+            } else { alert("Erreur."); }
+        }
+
+        function logout() {
+            sessionStorage.removeItem('activeUser');
+            checkAuth();
+            switchTab(null, 'pres');
+        }
+
+        function checkAuth() {
+            const user = sessionStorage.getItem('activeUser');
+            if(user) {
+                document.getElementById('nav-account').classList.remove('hidden');
+                document.getElementById('auth-btn').innerText = currentLang === 'fr' ? "Sortir" : "Logout";
+                document.getElementById('user-display').innerText = user;
+                updateAccountUI();
+            } else {
+                document.getElementById('nav-account').classList.add('hidden');
+                document.getElementById('auth-btn').innerText = translations[currentLang].btn_access;
+            }
+        }
+
+        function buyPass(type) {
+            const user = sessionStorage.getItem('activeUser');
+            if(!user) return openAuth('login');
+            let users = getUsers();
+            users[user].pass = type;
+            saveUsers(users);
+            updateAccountUI();
+            switchTab(null, 'account');
+        }
+
+        function updateAccountUI() {
+            const user = sessionStorage.getItem('activeUser');
+            if(!user) return;
+            const users = getUsers();
+            const pass = users[user].pass;
+            const statusDiv = document.getElementById('pass-status');
+            if(pass) {
+                statusDiv.innerHTML = `${translations[currentLang].your_pass} <span style="color:var(--accent)">${pass}</span>`;
+            } else {
+                statusDiv.innerText = translations[currentLang].no_pass;
+            }
+        }
+
+        window.onload = () => {
+            changeLanguage('fr');
+            checkAuth();
+        };
+    </script>
+</body>
+</html>
