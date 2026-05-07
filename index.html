@@ -3,16 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Infinity Compagnie | Espace Membre</title>
+    <title>Infinity Compagnie | Frozen Land 2026</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
             --accent: #ff0000;
+            --gold: #f39c12;
+            --eco: #44bd32;
+            --premium: #0097e6;
             --bg: #000000;
             --card: #0a0a0a;
             --text-main: #ffffff;
             --text-dim: #888888;
             --border: rgba(255, 255, 255, 0.1);
+            --app-bg: #1a1a1a; 
+            --glass: rgba(0, 0, 0, 0.85);
+            --success: #27ae60;
         }
 
         body {
@@ -21,294 +27,405 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
             margin: 0;
             overflow-x: hidden;
+            background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.03) 1px, transparent 0);
+            background-size: 40px 40px;
         }
 
         .cursor-glow {
             position: fixed; width: 600px; height: 600px;
-            background: radial-gradient(circle, rgba(255, 0, 0, 0.05) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(255, 0, 0, 0.07) 0%, transparent 70%);
             border-radius: 50%; pointer-events: none; z-index: 0; transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s;
         }
 
         /* NAVIGATION */
         nav {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 20px 5%; position: fixed; width: 100%; top: 0; z-index: 1000;
-            background: rgba(0,0,0,0.8); backdrop-filter: blur(20px);
+            padding: 15px 5%; position: fixed; width: 100%; top: 0; z-index: 1000;
+            background: var(--glass); backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--border); box-sizing: border-box;
         }
-        .logo { font-weight: 900; font-size: 1.5rem; text-decoration: none; color: white; }
+        .logo { font-weight: 900; font-size: 1.5rem; text-decoration: none; color: white; letter-spacing: -1px; }
         .logo span { color: var(--accent); }
 
-        .nav-right { display: flex; align-items: center; gap: 15px; }
-
-        .lang-switch {
-            background: #222; border: 1px solid var(--border); color: white;
-            padding: 5px 10px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.8rem;
-        }
-
-        .tab-nav { display: flex; gap: 8px; background: #111; padding: 5px; border-radius: 14px; }
+        .tab-nav { display: flex; gap: 5px; background: #111; padding: 5px; border-radius: 14px; }
         .tab-btn {
-            background: none; border: none; color: var(--text-dim); padding: 8px 20px;
-            font-weight: 700; cursor: pointer; border-radius: 10px; transition: 0.3s; font-size: 0.8rem;
+            background: none; border: none; color: var(--text-dim); padding: 8px 15px;
+            font-weight: 700; cursor: pointer; border-radius: 10px; transition: 0.3s; font-size: 0.75rem;
         }
         .tab-btn.active { background: var(--accent); color: white; }
-        .hidden { display: none !important; }
+
+        .nav-right { display: flex; align-items: center; gap: 20px; }
+
+        .cart-wrapper { position: relative; cursor: pointer; font-size: 1.3rem; transition: 0.2s; }
+        .cart-counter {
+            position: absolute; top: -8px; right: -10px; background: var(--accent);
+            color: white; font-size: 10px; font-weight: 900; padding: 2px 6px;
+            border-radius: 20px; min-width: 12px; text-align: center;
+            box-shadow: 0 0 10px rgba(255,0,0,0.3);
+        }
 
         /* MODALES */
-        .modal {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.95);
-            display: none; align-items: center; justify-content: center; z-index: 2000;
+        #auth-modal {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9);
+            z-index: 3000; align-items: center; justify-content: center; backdrop-filter: blur(15px);
         }
         .auth-card {
-            background: var(--card); border: 1px solid var(--border);
-            padding: 40px; border-radius: 32px; width: 90%; max-width: 400px; text-align: center;
+            background: var(--card); padding: 40px; border-radius: 30px; border: 1px solid var(--border);
+            width: 90%; max-width: 380px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
-        .auth-card input {
-            width: 100%; padding: 15px; margin: 10px 0; border-radius: 12px;
-            border: 1px solid #222; background: #000; color: white; box-sizing: border-box;
+        .auth-input {
+            width: 100%; padding: 15px; margin-bottom: 12px; border-radius: 12px;
+            border: 1px solid var(--border); background: #000; color: white; box-sizing: border-box;
+            outline: none; transition: 0.3s;
         }
-        .link-alt {
-            display: block; margin-top: 15px; color: var(--text-dim);
-            font-size: 0.8rem; cursor: pointer; text-decoration: underline;
+        .auth-input:focus { border-color: var(--accent); }
+
+        /* PANIER TIROIR */
+        #cart-drawer {
+            position: fixed; top: 0; right: -400px; width: 350px; height: 100%;
+            background: rgba(10, 10, 10, 0.98); backdrop-filter: blur(30px);
+            z-index: 2000; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            border-left: 1px solid var(--border); padding: 30px; box-sizing: border-box; display: flex; flex-direction: column;
+        }
+        #cart-drawer.open { right: 0; box-shadow: -20px 0 50px rgba(0,0,0,0.5); }
+
+        .cart-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px; background: rgba(255,255,255,0.03); border-radius: 15px; margin-bottom: 10px;
         }
 
-        /* CONTAINERS */
-        .container { max-width: 1200px; margin: 100px auto 0; padding: 40px 20px; display: none; }
-        .container.active { display: block; }
+        /* SECTIONS */
+        .container { max-width: 1100px; margin: 100px auto 0; padding: 40px 20px; display: none; }
+        .container.active { display: block; animation: fadeIn 0.6s ease-out; }
 
-        /* CARDS */
-        .pricing-grid { display: flex; justify-content: center; align-items: stretch; gap: 20px; flex-wrap: wrap; }
-        .price-card, .user-card {
-            background: var(--card); border: 1px solid var(--border); padding: 40px;
-            border-radius: 32px; flex: 1; min-width: 250px; max-width: 320px; display: flex; flex-direction: column; text-align: center;
+        /* GEAR MOCKUP & COLOR SELECTOR */
+        .gear-container { display: flex; justify-content: center; align-items: center; gap: 40px; margin-top: 20px; position: relative;}
+        
+        .color-selector {
+            display: flex; flex-direction: column; gap: 15px;
+            position: absolute; left: 10%;
         }
+        .color-btn {
+            width: 40px; height: 40px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.2);
+            cursor: pointer; transition: 0.3s; position: relative;
+        }
+        .color-btn:hover { transform: scale(1.2); border-color: white; }
+        .color-btn.active { border-color: white; transform: scale(1.1); box-shadow: 0 0 15px currentColor; }
+
+        .app-mockup {
+            width: 320px; height: 580px; background-color: var(--app-bg);
+            border-radius: 45px; position: relative;
+            box-shadow: 0 40px 80px rgba(0,0,0,0.8); overflow: hidden; border: 8px solid #222;
+        }
+        .manteau { 
+            position: absolute; width: 260px; left: 30px; top: 120px; 
+            filter: drop-shadow(0 20px 30px rgba(0,0,0,0.5)); 
+            transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* BOUTIQUE */
+        .pricing-grid { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-top: 30px; }
+        .price-card {
+            background: var(--card); border: 1px solid var(--border); padding: 25px;
+            border-radius: 32px; flex: 1; min-width: 280px; max-width: 320px; text-align: center;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .price-card:hover { transform: translateY(-10px); border-color: rgba(255,255,255,0.2); }
+        .pass-img { width: 100%; height: 180px; object-fit: cover; border-radius: 20px; margin-bottom: 15px; }
+
         .btn-action {
-            display: block; width: 100%; padding: 15px; background: white; color: black;
-            text-decoration: none; border-radius: 12px; font-weight: 800; margin-top: auto; cursor: pointer; border: none; transition: 0.3s;
+            display: block; width: 100%; padding: 16px; background: white; color: black;
+            border-radius: 14px; font-weight: 800; cursor: pointer; border: none; transition: 0.3s;
         }
-        .btn-action:hover { background: var(--accent); color: white; }
-        .btn-primary { background: var(--accent); color: white; margin-top: 10px; }
+        .btn-action:hover { transform: scale(1.02); background: #eee; }
 
-        .cost { font-size: 2.5rem; font-weight: 900; margin: 15px 0; }
-        .cost span { font-size: 1rem; color: var(--accent); }
+        .viewer-card { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 32px; border: 1px solid var(--border); overflow: hidden; cursor: ew-resize; }
+        #card-render { width: 100%; height: 100%; background-image: url('Gemini_Generated_Image_v2ylc3v2ylc3v2yl (1).png'); background-size: 400% 200%; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
     <div class="cursor-glow" id="glow"></div>
 
+    <!-- MODALE AUTH -->
+    <div id="auth-modal">
+        <div class="auth-card">
+            <h2 id="auth-title" style="font-weight:900; margin-top:0;">CONNEXION</h2>
+            <input type="text" id="username" class="auth-input" placeholder="Identifiant">
+            <input type="password" id="password" class="auth-input" placeholder="Mot de passe">
+            <button class="btn-action" style="background:var(--accent); color:white; margin-bottom:15px;" onclick="handleAuth()">CONTINUER</button>
+            <p id="auth-switch" style="font-size:0.85rem; color:var(--text-dim); cursor:pointer;" onclick="toggleAuthMode()">Pas de compte ? Créer une session</p>
+            <button onclick="closeAuth()" style="background:none; border:none; color:var(--text-dim); margin-top:15px; cursor:pointer; font-size:0.8rem;">Fermer</button>
+        </div>
+    </div>
+
+    <!-- PANIER -->
+    <div id="cart-drawer">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
+            <h3 style="margin:0; letter-spacing:1px;">MON PANIER</h3>
+            <button onclick="toggleCart()" style="background:none; border:none; color:white; cursor:pointer; font-size:1.2rem;">✕</button>
+        </div>
+        <ul id="cart-items-list" style="list-style:none; padding:0; flex-grow:1; overflow-y:auto;"></ul>
+        <div style="border-top:1px solid var(--border); padding-top:20px;">
+            <div style="display:flex; justify-content:space-between; font-weight:900; font-size:1.2rem; margin-bottom:20px;">
+                <span>TOTAL</span><span id="total-price" style="color:var(--accent)">0€</span>
+            </div>
+            <button class="btn-action" style="background:var(--accent); color:white;" onclick="processOrder()">VALIDER LA COMMANDE</button>
+        </div>
+    </div>
+
     <nav>
         <a href="#" class="logo">Infinity<span>.</span></a>
         <div class="tab-nav">
-            <button class="tab-btn active" onclick="switchTab(event, 'pres')" data-i18n="nav_project">Projet</button>
-            <button class="tab-btn" onclick="switchTab(event, 'shop')" data-i18n="nav_pass">Pass</button>
-            <button id="nav-account" class="tab-btn hidden" onclick="switchTab(event, 'account')" data-i18n="nav_profile">Mon Profil</button>
+            <button class="tab-btn active" onclick="switchTab(event, 'pres')">Projet</button>
+            <button class="tab-btn" onclick="switchTab(event, 'viewer-section')">Vue 360°</button>
+            <button class="tab-btn" onclick="switchTab(event, 'gear')">Équipement</button>
+            <button class="tab-btn" onclick="switchTab(event, 'shop')">Pass</button>
         </div>
-        
         <div class="nav-right">
-            <select class="lang-switch" onchange="changeLanguage(this.value)">
-                <option value="fr">FR</option>
-                <option value="en">EN</option>
-            </select>
-            <button id="auth-btn" class="tab-btn" style="background:white; color:black; border-radius:10px;" onclick="openAuth('login')" data-i18n="btn_access">Accès</button>
+            <div class="cart-wrapper" onclick="toggleCart()">🛒 <span id="cart-count" class="cart-counter">0</span></div>
+            <button id="auth-trigger" class="tab-btn" style="background:white; color:black; font-weight:800; min-width:100px;" onclick="handleAuthBtnClick()">Accès</button>
         </div>
     </nav>
 
-    <div id="pres" class="container active">
-        <h1 style="text-align: center; font-size: 3.5rem;">FROZEN LAND <span style="color:var(--accent)">2026</span></h1>
-        <div style="width: 100%; aspect-ratio: 16/9; border-radius: 24px; overflow: hidden; border: 1px solid var(--border);">
-            <iframe src="https://www.youtube.com/embed/8AZ2tnH36oA" style="width:100%; height:100%; border:none;"></iframe>
+    <!-- SECTION PROJET -->
+    <main id="pres" class="container active">
+        <h1 style="text-align: center; font-weight: 900; font-size: 3.5rem; margin-bottom:10px;">FROZEN LAND <span style="color:var(--accent)">2026</span></h1>
+        <p style="text-align:center; color:var(--text-dim); margin-bottom:40px;">L'expérience ultime de la haute montagne.</p>
+        <iframe src="https://www.youtube.com/embed/8AZ2tnH36oA" style="width:100%; aspect-ratio:16/9; border-radius:32px; border:1px solid var(--border); box-shadow: 0 20px 50px rgba(0,0,0,0.5);" allowfullscreen></iframe>
+    </main>
+
+    <!-- SECTION 360 -->
+    <section id="viewer-section" class="container">
+        <h2 style="text-align:center; font-size:2rem; margin-bottom:30px;">INSPECTION <span style="color:var(--accent)">360°</span></h2>
+        <div class="viewer-card" id="viewer"><div id="card-render"></div></div>
+    </section>
+
+    <!-- SECTION GEAR AVEC SELECTEUR DE COULEURS -->
+<!-- Remplace la section GEAR par celle-ci -->
+<section id="gear" class="container">
+    <h2 style="text-align:center; font-size:2rem; margin-bottom:30px;">GEAR <span style="color:var(--accent)">CUSTOM</span></h2>
+    
+    <div class="gear-container">
+        <!-- Boutons Latéraux -->
+        <div class="color-selector">
+            <div class="color-btn active" style="background: #f1c40f; color: #f1c40f;" onclick="changeColor('Jaune', 'ChatGPT Image 7 mai 2026, 12_44_30.png', 299, this)"></div>
+            <div class="color-btn" style="background: #e74c3c; color: #e74c3c;" onclick="changeColor('Rouge', 'ChatGPT Image 7 mai 2026, 13_44_20.png', 349, this)"></div>
+            <div class="color-btn" style="background: #ffffff; color: #ffffff;" onclick="changeColor('Blanc', 'ChatGPT Image 7 mai 2026, 12_44_30.png', 299, this)"></div>
+        </div>
+
+        <div class="app-mockup">
+            <img src="ChatGPT Image 7 mai 2026, 12_44_30.png" class="manteau" id="gear-img">
+            
+            <!-- Nom et Prix sur la même ligne -->
+            <div style="position:absolute; bottom:110px; width:100%; text-align:center; font-weight:800; color:white; letter-spacing: 0.5px; font-size: 0.9rem;">
+                PULL <span id="current-color-name" style="color:var(--gold)">JAUNE</span> 
+                <span style="margin: 0 8px; opacity: 0.3;">|</span> 
+                <span id="current-gear-price" style="color: var(--text-main);">299€</span>
+            </div>
+            
+            <button class="btn-action" id="gear-add-btn" style="position:absolute; bottom:30px; width:80%; left:10%; background:var(--accent); color:white;" onclick="addGearToCart()">AJOUTER AU PANIER</button>
         </div>
     </div>
+</section>
 
-    <div id="shop" class="container">
-        <h2 style="text-align: center; margin-bottom: 40px;" data-i18n="shop_title">Boutique Officielle</h2>
+<script>
+    // --- MISE À JOUR DE LA FONCTION JS ---
+    function changeColor(colorName, imgSrc, price, btn) {
+        const imgEl = document.getElementById('gear-img');
+        imgEl.style.opacity = "0";
+        
+        setTimeout(() => {
+            imgEl.src = imgSrc;
+            imgEl.style.opacity = "1";
+        }, 300);
+
+        // Mise à jour du nom, de la couleur du texte et du prix à côté
+        document.getElementById('current-color-name').innerText = colorName.toUpperCase();
+        document.getElementById('current-color-name').style.color = btn.style.background;
+        document.getElementById('current-gear-price').innerText = price + "€";
+        
+        // Update pour le panier
+        selectedGear.name = `Pull Infinity ${colorName}`;
+        selectedGear.price = price;
+
+        document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    }
+</script>
+
+    <!-- SECTION PASS -->
+    <section id="shop" class="container">
+        <h2 style="text-align:center; font-size:2rem; margin-bottom:30px;">VOTRE <span style="color:var(--accent)">ACCÈS</span></h2>
         <div class="pricing-grid">
-            <div class="price-card">
-                <h3 data-i18n="pass_eco_name">Pass Éco</h3>
-                <div class="cost">999<span>€</span></div>
-                <p style="color:var(--text-dim); margin-bottom: 20px;" data-i18n="pass_eco_desc">Accès standard au secteur 4.</p>
-                <button class="btn-action" onclick="buyPass('ÉCO')" data-i18n="btn_choose">Choisir</button>
+            <div class="price-card" style="border-top: 4px solid var(--eco);">
+                <img src="WhatsApp Image 2026-04-18 at 17.39.49.jpeg" class="pass-img" alt="Eco">
+                <h3 style="color:var(--eco)">PASS ECO</h3>
+                <div style="font-size:1.8rem; font-weight:900; margin:15px 0;">450€</div>
+                <button class="btn-action" onclick="addToCart(this, 'Pass Eco', 450)">SÉLECTIONNER</button>
             </div>
-            <div class="price-card" style="border-color: var(--accent); transform: scale(1.05); z-index: 2;">
-                <div style="background: var(--accent); color: white; font-size: 0.7rem; font-weight: 800; padding: 5px; border-radius: 5px; width: fit-content; margin: -20px auto 10px;" data-i18n="badge_popular">POPULAIRE</div>
-                <h3 data-i18n="pass_gold_name">Pass Gold</h3>
-                <div class="cost">4 999<span>€</span></div>
-                <p style="color:var(--text-dim); margin-bottom: 20px;" data-i18n="pass_gold_desc">Accès prioritaire et pack de ski.</p>
-                <button class="btn-action" onclick="buyPass('GOLD')" data-i18n="btn_choose">Choisir</button>
+            <div class="price-card" style="border-top: 4px solid var(--gold);">
+                <img src="WhatsApp Image 2026-04-18 at 17.39.49 (1).jpeg" class="pass-img" alt="Gold">
+                <h3 style="color:var(--gold)">GOLD PASS</h3>
+                <div style="font-size:1.8rem; font-weight:900; margin:15px 0;">1200€</div>
+                <button class="btn-action" style="background:var(--gold); color:white;" onclick="addToCart(this, 'Pass Gold', 1200)">SÉLECTIONNER</button>
             </div>
-            <div class="price-card" style="border-color: #ffd700;">
-                <h3 data-i18n="pass_premium_name">Pass Premium</h3>
-                <div class="cost">9 999<span>€</span></div>
-                <p style="color:var(--text-dim); margin-bottom: 20px;" data-i18n="pass_premium_desc">Secteur Privé & Hébergement de luxe.</p>
-                <button class="btn-action" style="border: 1px solid #ffd700;" onclick="buyPass('PREMIUM')" data-i18n="btn_choose">Choisir</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="account" class="container">
-        <h2 style="text-align: center;"><span data-i18n="welcome">Bienvenue</span>, <span id="user-display" style="color:var(--accent);">Voyageur</span></h2>
-        <div style="display: flex; justify-content: center; margin-top: 30px;">
-            <div class="user-card" style="max-width: 500px; width: 100%;">
-                <h3 style="margin: 0; font-size: 0.8rem; letter-spacing: 2px;" data-i18n="status_title">VOTRE STATUT ACTUEL</h3>
-                <div id="pass-status" style="margin: 20px 0; font-size: 1.5rem; font-weight: 800; color: var(--text-dim);">
-                    Aucun pass actif
-                </div>
-                <hr style="border: 0; border-top: 1px solid var(--border); margin: 20px 0;">
-                <button class="btn-action" style="background: #111; color: white;" onclick="logout()" data-i18n="btn_logout">Se déconnecter</button>
+            <div class="price-card" style="border-top: 4px solid var(--premium); background: linear-gradient(180deg, #0a0a0a 0%, #001a2e 100%);">
+                <img src="WhatsApp Image 2026-04-18 at 17.39.49 (2).jpeg" class="pass-img" alt="Premium">
+                <h3 style="color:var(--premium)">PASS PREMIUM</h3>
+                <div style="font-size:1.8rem; font-weight:900; margin:15px 0;">9999€</div>
+                <button class="btn-action" style="background:var(--premium); color:white;" onclick="addToCart(this, 'Pass Premium', 9999)">SÉLECTIONNER</button>
             </div>
         </div>
-    </div>
-
-    <div id="auth-modal" class="modal">
-        <div class="auth-card">
-            <div id="mode-login">
-                <h2 data-i18n="login_title">Connexion</h2>
-                <input type="text" id="login-user" placeholder="Identifiant">
-                <input type="password" id="login-pass" placeholder="Mot de passe">
-                <button class="btn-action btn-primary" onclick="handleLogin()" data-i18n="btn_login">Se connecter</button>
-                <span class="link-alt" onclick="openAuth('register')" data-i18n="link_register">Créer un compte</span>
-            </div>
-            <div id="mode-register" class="hidden">
-                <h2 data-i18n="register_title">Inscription</h2>
-                <input type="text" id="reg-user" placeholder="Identifiant">
-                <input type="password" id="reg-pass" placeholder="Mot de passe">
-                <button class="btn-action btn-primary" onclick="handleRegister()" data-i18n="btn_register_action">S'inscrire</button>
-                <span class="link-alt" onclick="openAuth('login')" data-i18n="link_back">Retour</span>
-            </div>
-            <button onclick="closeModal()" style="background:none; border:none; color:var(--text-dim); margin-top:20px; cursor:pointer;" data-i18n="btn_cancel">Annuler</button>
-        </div>
-    </div>
+    </section>
 
     <script>
-        // --- TRADUCTIONS ---
-        const translations = {
-            fr: {
-                nav_project: "Projet", nav_pass: "Pass", nav_profile: "Mon Profil", btn_access: "Accès",
-                shop_title: "Boutique Officielle", pass_eco_name: "Pass Éco", pass_eco_desc: "Accès standard au secteur 4.",
-                pass_gold_name: "Pass Gold", pass_gold_desc: "Accès prioritaire et pack de ski.",
-                pass_premium_name: "Pass Premium", pass_premium_desc: "Secteur Privé & Hébergement de luxe.",
-                btn_choose: "Choisir", badge_popular: "POPULAIRE", welcome: "Bienvenue", status_title: "VOTRE STATUT ACTUEL",
-                btn_logout: "Se déconnecter", login_title: "Connexion", btn_login: "Se connecter", link_register: "Créer un compte",
-                register_title: "Inscription", btn_register_action: "S'inscrire", link_back: "Retour", btn_cancel: "Annuler",
-                no_pass: "Aucun pass actif", your_pass: "VOTRE PASS : "
-            },
-            en: {
-                nav_project: "Project", nav_pass: "Passes", nav_profile: "My Profile", btn_access: "Access",
-                shop_title: "Official Store", pass_eco_name: "Eco Pass", pass_eco_desc: "Standard access to sector 4.",
-                pass_gold_name: "Gold Pass", pass_gold_desc: "Priority access and ski pack.",
-                pass_premium_name: "Premium Pass", pass_premium_desc: "Private Sector & Luxury stay.",
-                btn_choose: "Choose", badge_popular: "POPULAR", welcome: "Welcome", status_title: "YOUR CURRENT STATUS",
-                btn_logout: "Logout", login_title: "Login", btn_login: "Sign In", link_register: "Create an account",
-                register_title: "Register", btn_register_action: "Sign Up", link_back: "Back", btn_cancel: "Cancel",
-                no_pass: "No active pass", your_pass: "YOUR PASS: "
-            }
+        // --- ETAT GLOBAL ---
+        let cart = JSON.parse(localStorage.getItem('infinity_cart')) || [];
+        let currentUser = sessionStorage.getItem('infinity_user') || null;
+        let isLoginMode = true;
+        let selectedGear = { name: "Pull Infinity Jaune", price: 299 };
+
+        // --- INITIALISATION ---
+        window.onload = () => {
+            updateCartUI();
+            updateAuthUI();
+            animate360();
         };
 
-        let currentLang = 'fr';
+        // --- GESTION GEAR (PULLS) ---
+        function changeColor(colorName, imgSrc, btn) {
+            // Mise à jour visuelle image
+            const imgEl = document.getElementById('gear-img');
+            imgEl.style.opacity = "0";
+            setTimeout(() => {
+                imgEl.src = imgSrc;
+                imgEl.style.opacity = "1";
+            }, 300);
 
-        function changeLanguage(lang) {
-            currentLang = lang;
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                el.innerText = translations[lang][key];
-            });
-            updateAccountUI(); // Rafraîchir le statut du pass avec la bonne langue
+            // Mise à jour texte
+            document.getElementById('current-color-name').innerText = colorName.toUpperCase();
+            document.getElementById('current-color-name').style.color = btn.style.background;
+            
+            // Update sélection pour le panier
+            selectedGear.name = `Pull Infinity ${colorName}`;
+
+            // Style boutons
+            document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
         }
 
-        // --- CURSEUR ---
-        const glow = document.getElementById('glow');
-        window.addEventListener('mousemove', (e) => {
-            glow.style.left = e.clientX + 'px'; glow.style.top = e.clientY + 'px';
-        });
+        function addGearToCart() {
+            const btn = document.getElementById('gear-add-btn');
+            addToCart(btn, selectedGear.name, selectedGear.price);
+        }
 
         // --- NAVIGATION ---
         function switchTab(evt, tabId) {
             document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
-            if(evt) evt.currentTarget.classList.add('active');
+            evt.currentTarget.classList.add('active');
         }
 
-        // --- AUTH ---
-        function openAuth(mode) {
-            document.getElementById('auth-modal').style.display = 'flex';
-            document.getElementById('mode-login').classList.add('hidden');
-            document.getElementById('mode-register').classList.add('hidden');
-            document.getElementById('mode-' + mode).classList.remove('hidden');
-        }
-        function closeModal() { document.getElementById('auth-modal').style.display = 'none'; }
-        function getUsers() { return JSON.parse(localStorage.getItem('infinity_users')) || {}; }
-        function saveUsers(users) { localStorage.setItem('infinity_users', JSON.stringify(users)); }
-
-        function handleRegister() {
-            const u = document.getElementById('reg-user').value;
-            const p = document.getElementById('reg-pass').value;
-            if(!u || !p) return alert("Remplissez tout.");
-            let users = getUsers();
-            if(users[u]) return alert("Pseudo pris.");
-            users[u] = { password: p, pass: null };
-            saveUsers(users);
-            openAuth('login');
-        }
-
-        function handleLogin() {
-            const u = document.getElementById('login-user').value;
-            const p = document.getElementById('login-pass').value;
-            let users = getUsers();
-            if(users[u] && users[u].password === p) {
-                sessionStorage.setItem('activeUser', u);
-                checkAuth();
-                closeModal();
-            } else { alert("Erreur."); }
-        }
-
-        function logout() {
-            sessionStorage.removeItem('activeUser');
-            checkAuth();
-            switchTab(null, 'pres');
-        }
-
-        function checkAuth() {
-            const user = sessionStorage.getItem('activeUser');
-            if(user) {
-                document.getElementById('nav-account').classList.remove('hidden');
-                document.getElementById('auth-btn').innerText = currentLang === 'fr' ? "Sortir" : "Logout";
-                document.getElementById('user-display').innerText = user;
-                updateAccountUI();
+        // --- AUTHENTIFICATION ---
+        function handleAuthBtnClick() {
+            if (currentUser) {
+                if (confirm(`Déconnexion de ${currentUser} ?`)) {
+                    currentUser = null;
+                    sessionStorage.removeItem('infinity_user');
+                    updateAuthUI();
+                }
             } else {
-                document.getElementById('nav-account').classList.add('hidden');
-                document.getElementById('auth-btn').innerText = translations[currentLang].btn_access;
+                openAuth();
             }
         }
-
-        function buyPass(type) {
-            const user = sessionStorage.getItem('activeUser');
-            if(!user) return openAuth('login');
-            let users = getUsers();
-            users[user].pass = type;
-            saveUsers(users);
-            updateAccountUI();
-            switchTab(null, 'account');
+        function openAuth() { document.getElementById('auth-modal').style.display = 'flex'; }
+        function closeAuth() { document.getElementById('auth-modal').style.display = 'none'; }
+        function toggleAuthMode() {
+            isLoginMode = !isLoginMode;
+            document.getElementById('auth-title').innerText = isLoginMode ? "CONNEXION" : "INSCRIPTION";
+            document.getElementById('auth-switch').innerText = isLoginMode ? "Pas de compte ? Créer une session" : "Déjà membre ? Se connecter";
         }
-
-        function updateAccountUI() {
-            const user = sessionStorage.getItem('activeUser');
-            if(!user) return;
-            const users = getUsers();
-            const pass = users[user].pass;
-            const statusDiv = document.getElementById('pass-status');
-            if(pass) {
-                statusDiv.innerHTML = `${translations[currentLang].your_pass} <span style="color:var(--accent)">${pass}</span>`;
+        function handleAuth() {
+            const u = document.getElementById('username').value.trim();
+            const p = document.getElementById('password').value.trim();
+            const db = JSON.parse(localStorage.getItem('infinity_users_db')) || {};
+            if(!u || !p) return alert("Veuillez remplir tous les champs.");
+            if(isLoginMode) {
+                if(db[u] === p) { login(u); } else { alert("Identifiants incorrects."); }
             } else {
-                statusDiv.innerText = translations[currentLang].no_pass;
+                if(db[u]) return alert("Cet identifiant existe déjà.");
+                db[u] = p; 
+                localStorage.setItem('infinity_users_db', JSON.stringify(db));
+                alert("Compte créé avec succès !"); toggleAuthMode();
             }
         }
+        function login(u) {
+            currentUser = u;
+            sessionStorage.setItem('infinity_user', u);
+            updateAuthUI(); closeAuth();
+        }
+        function updateAuthUI() {
+            const btn = document.getElementById('auth-trigger');
+            btn.innerText = currentUser ? currentUser.toUpperCase() : "Accès";
+            btn.style.background = currentUser ? "var(--accent)" : "white";
+            btn.style.color = currentUser ? "white" : "black";
+        }
 
-        window.onload = () => {
-            changeLanguage('fr');
-            checkAuth();
+        // --- PANIER ---
+        function toggleCart() { document.getElementById('cart-drawer').classList.toggle('open'); }
+        function addToCart(btn, name, price) {
+            if(!currentUser) { alert("Veuillez vous connecter."); return openAuth(); }
+            cart.push({ id: Date.now(), name, price });
+            localStorage.setItem('infinity_cart', JSON.stringify(cart));
+            updateCartUI();
+            const originalText = btn.innerText;
+            btn.innerText = "✓ AJOUTÉ";
+            btn.style.background = "var(--success)";
+            setTimeout(() => { btn.innerText = originalText; btn.style.background = ""; }, 1000);
+        }
+        function removeFromCart(id) {
+            cart = cart.filter(i => i.id !== id);
+            localStorage.setItem('infinity_cart', JSON.stringify(cart));
+            updateCartUI();
+        }
+        function updateCartUI() {
+            const list = document.getElementById('cart-items-list');
+            const totalEl = document.getElementById('total-price');
+            const countEl = document.getElementById('cart-count');
+            list.innerHTML = cart.length === 0 ? `<li style="text-align:center; color:var(--text-dim); margin-top:50px;">Vide</li>` : 
+                cart.map(i => `<li class="cart-item"><div><b>${i.name}</b><br>${i.price}€</div><button onclick="removeFromCart(${i.id})" style="background:none; border:none; color:red; cursor:pointer;">✕</button></li>`).join('');
+            const total = cart.reduce((s, i) => s + i.price, 0);
+            countEl.innerText = cart.length;
+            totalEl.innerText = total + "€";
+        }
+        function processOrder() {
+            if(cart.length === 0) return;
+            alert(`Commande confirmée pour ${currentUser} !`);
+            cart = []; localStorage.setItem('infinity_cart', "[]"); updateCartUI(); toggleCart();
+        }
+
+        // --- EFFETS ---
+        let currentRot = 0, targetRot = 0, isDragging = false;
+        window.onmousemove = (e) => {
+            const glow = document.getElementById('glow');
+            glow.style.left = e.clientX + 'px'; glow.style.top = e.clientY + 'px';
         };
+        function animate360() {
+            currentRot += (targetRot - currentRot) * 0.1;
+            let frame = Math.round(Math.abs(currentRot / 45)) % 8;
+            const render = document.getElementById('card-render');
+            if(render) render.style.backgroundPosition = `${(frame % 4) * 33.33}% ${Math.floor(frame / 4) * 100}%`;
+            requestAnimationFrame(animate360);
+        }
+        const viewer = document.getElementById('viewer');
+        viewer.onmousedown = () => isDragging = true;
+        window.onmouseup = () => isDragging = false;
+        window.onmousemove = (e) => { if(isDragging) targetRot += e.movementX * 0.8; };
     </script>
 </body>
 </html>
