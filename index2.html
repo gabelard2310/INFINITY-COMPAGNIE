@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infinity | 360° Viewer Premium</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --accent: #ff0000;
+            --bg: #030305;
+            --glass: rgba(255, 255, 255, 0.03);
+        }
+
+        body {
+            background-color: var(--bg);
+            color: white;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.05) 1px, transparent 0);
+            background-size: 40px 40px;
+        }
+
+        .perspective-container {
+            position: relative;
+            width: 90vw;
+            max-width: 900px;
+            perspective: 1500px;
+        }
+
+        /* CADRE DU VIEWER */
+        .viewer-card {
+            width: 100%;
+            aspect-ratio: 16/10;
+            background: #000;
+            border-radius: 40px;
+            border: 1px solid rgba(255,255,255,0.1);
+            position: relative;
+            overflow: hidden;
+            cursor: ew-resize; /* Curseur indiquant un mouvement horizontal */
+            box-shadow: 0 50px 100px -20px rgba(0,0,0,1);
+        }
+
+        /* LE RENDU (SPRITE SHEET) */
+        #card-render {
+            width: 100%;
+            height: 100%;
+            /* Remplace par ton URL d'image finale qui contient les 8 vues */
+            background-image: url('Gemini_Generated_Image_v2ylc3v2ylc3v2yl (1).png'); 
+            background-size: 400% 200%; /* Grille 4x2 */
+            background-repeat: no-repeat;
+            background-position: 0% 0%;
+            transition: transform 0.1s ease-out;
+            will-change: transform, background-position;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* REFLET DYNAMIQUE (GLARE) */
+        .glare {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 50%, rgba(0,0,0,0.5) 100%);
+            pointer-events: none;
+            z-index: 5;
+            mix-blend-mode: overlay;
+        }
+
+        /* HUD OVERLAY */
+        .hud {
+            position: absolute;
+            inset: 0;
+            padding: 30px;
+            pointer-events: none;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background: radial-gradient(circle at center, transparent 30%, rgba(0,0,0,0.4) 100%);
+        }
+
+        .hud-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .hud-tag {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 8px 15px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .hud-tag.red { color: var(--accent); border-color: rgba(255,0,0,0.2); }
+
+        .scanline {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 2px;
+            background: rgba(255,0,0,0.1);
+            animation: scan 4s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { top: 0; }
+            100% { top: 100%; }
+        }
+
+        /* INDICATION D'INTERACTION */
+        .hint {
+            text-align: center;
+            color: rgba(255,255,255,0.3);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="perspective-container">
+        <div class="viewer-card" id="viewer">
+            <div class="glare" id="glare"></div>
+            <div class="scanline"></div>
+            
+            <div class="hud">
+                <div class="hud-header">
+                    <div class="hud-tag red">System: Online</div>
+                    <div class="hud-tag">Zoom: <span id="zoom-val">100</span>%</div>
+                </div>
+                
+                <div style="display: flex; justify-content: center;">
+                    <div class="hud-tag">Orbit Mode: 360° Inspection</div>
+                </div>
+
+                <div class="hint">DRAG TO ROTATE • SCROLL TO ZOOM</div>
+            </div>
+
+            <div id="card-render"></div>
+        </div>
+    </div>
+
+    <script>
+        const viewer = document.getElementById('viewer');
+        const card = document.getElementById('card-render');
+        const zoomVal = document.getElementById('zoom-val');
+        const glare = document.getElementById('glare');
+        
+        let isDragging = false;
+        let startX = 0;
+        let currentRotation = 0; // En degrés
+        let targetRotation = 0;
+        let scale = 1.0;
+        
+        const totalFrames = 8; // Nombre d'images dans ton sprite
+
+        // Animation loop
+        function animate() {
+            // Interpolation douce (Lerp) pour la rotation
+            currentRotation += (targetRotation - currentRotation) * 0.1;
+
+            // Calcul de la frame (0 à 7) basée sur la rotation
+            // On divise 360 par le nombre de frames
+            let frameIndex = Math.floor(Math.abs(currentRotation / (360 / totalFrames))) % totalFrames;
+            
+            // Calcul des colonnes et lignes pour background-position
+            const col = frameIndex % 4;
+            const row = Math.floor(frameIndex / 4);
+            
+            card.style.backgroundPosition = `${col * (100 / 3)}% ${row * 100}%`;
+            card.style.transform = `scale(${scale})`;
+
+            // Effet de mouvement sur le reflet
+            const glareX = (currentRotation % 360) / 3.6;
+            glare.style.background = `linear-gradient(${135 + glareX}deg, rgba(255,255,255,0.1) 0%, transparent 60%)`;
+
+            requestAnimationFrame(animate);
+        }
+
+        // --- MOUSE EVENTS ---
+        viewer.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            startX = e.pageX;
+            viewer.style.cursor = 'grabbing';
+        });
+
+        window.addEventListener('mouseup', () => {
+            isDragging = false;
+            viewer.style.cursor = 'ew-resize';
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            
+            const deltaX = e.pageX - startX;
+            // Sensibilité de la rotation
+            targetRotation += deltaX * 0.5;
+            startX = e.pageX;
+        });
+
+        // --- ZOOM ---
+        viewer.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const delta = e.deltaY > 0 ? -0.1 : 0.1;
+            scale = Math.min(Math.max(0.8, scale + delta), 2.0);
+            zoomVal.innerText = Math.round(scale * 100);
+        }, { passive: false });
+
+        // --- AUTO-ROTATE AU DÉBUT ---
+        let introRotation = setInterval(() => {
+            if(!isDragging) targetRotation += 0.5;
+        }, 16);
+
+        viewer.addEventListener('mousedown', () => clearInterval(introRotation), {once: true});
+
+        animate();
+    </script>
+</body>
+</html>

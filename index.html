@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Infinity Compagnie | Frozen Land 2026</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
@@ -29,39 +29,87 @@
             overflow-x: hidden;
             background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.03) 1px, transparent 0);
             background-size: 40px 40px;
+            -webkit-tap-highlight-color: transparent;
         }
 
+        /* CURSOR GLOW (Désactivé sur tactile pour éviter les bugs visuels) */
         .cursor-glow {
             position: fixed; width: 600px; height: 600px;
             background: radial-gradient(circle, rgba(255, 0, 0, 0.07) 0%, transparent 70%);
             border-radius: 50%; pointer-events: none; z-index: 0; transform: translate(-50%, -50%);
             transition: width 0.3s, height 0.3s;
+            display: none;
         }
+        @media (pointer: fine) {
+            .cursor-glow { display: block; }
+        }
+
+        /* NOTIFICATIONS PERSONNALISÉES */
+        #notification-container {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 90%;
+            max-width: 400px;
+            pointer-events: none;
+        }
+        .toast {
+            background: rgba(10, 10, 10, 0.95);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--accent);
+            padding: 15px 20px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            animation: slideUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            pointer-events: auto;
+        }
+        .toast.success { border-left-color: var(--success); }
+        .toast.gold { border-left-color: var(--gold); }
+        .toast.error { border-left-color: var(--accent); }
 
         /* NAVIGATION */
         nav {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 15px 5%; position: fixed; width: 100%; top: 0; z-index: 1000;
+            padding: 10px 4%; position: fixed; width: 100%; top: 0; z-index: 1000;
             background: var(--glass); backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--border); box-sizing: border-box;
+            height: 70px;
         }
-        .logo { font-weight: 900; font-size: 1.5rem; text-decoration: none; color: white; letter-spacing: -1px; }
+        .logo { font-weight: 900; font-size: 1.3rem; text-decoration: none; color: white; letter-spacing: -1px; }
         .logo span { color: var(--accent); }
 
-        .tab-nav { display: flex; gap: 5px; background: #111; padding: 5px; border-radius: 14px; }
+        .tab-nav { 
+            display: flex; gap: 5px; background: #111; padding: 4px; border-radius: 12px;
+            overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+            max-width: 55%;
+        }
+        .tab-nav::-webkit-scrollbar { display: none; }
         .tab-btn {
-            background: none; border: none; color: var(--text-dim); padding: 8px 15px;
-            font-weight: 700; cursor: pointer; border-radius: 10px; transition: 0.3s; font-size: 0.75rem;
+            background: none; border: none; color: var(--text-dim); padding: 8px 12px;
+            font-weight: 700; cursor: pointer; border-radius: 9px; transition: 0.3s; font-size: 0.75rem;
+            white-space: nowrap;
         }
         .tab-btn.active { background: var(--accent); color: white; }
 
-        .nav-right { display: flex; align-items: center; gap: 20px; }
+        .nav-right { display: flex; align-items: center; gap: 15px; }
 
-        .cart-wrapper { position: relative; cursor: pointer; font-size: 1.3rem; transition: 0.2s; }
+        .cart-wrapper { position: relative; cursor: pointer; font-size: 1.3rem; transition: 0.2s; padding: 5px; }
         .cart-counter {
-            position: absolute; top: -8px; right: -10px; background: var(--accent);
-            color: white; font-size: 10px; font-weight: 900; padding: 2px 6px;
-            border-radius: 20px; min-width: 12px; text-align: center;
+            position: absolute; top: -4px; right: -6px; background: var(--accent);
+            color: white; font-size: 9px; font-weight: 900; padding: 2px 5px;
+            border-radius: 20px; min-width: 10px; text-align: center;
             box-shadow: 0 0 10px rgba(255,0,0,0.3);
         }
 
@@ -69,114 +117,138 @@
         #auth-modal {
             display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9);
             z-index: 3000; align-items: center; justify-content: center; backdrop-filter: blur(15px);
+            padding: 20px; box-sizing: border-box;
         }
         .auth-card {
-            background: var(--card); padding: 40px; border-radius: 30px; border: 1px solid var(--border);
-            width: 90%; max-width: 380px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            background: var(--card); padding: 30px 20px; border-radius: 24px; border: 1px solid var(--border);
+            width: 100%; max-width: 360px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
         .auth-input {
-            width: 100%; padding: 15px; margin-bottom: 12px; border-radius: 12px;
+            width: 100%; padding: 14px; margin-bottom: 12px; border-radius: 12px;
             border: 1px solid var(--border); background: #000; color: white; box-sizing: border-box;
-            outline: none; transition: 0.3s;
+            outline: none; transition: 0.3s; font-size: 0.9rem;
         }
         .auth-input:focus { border-color: var(--accent); }
 
         /* PANIER TIROIR */
         #cart-drawer {
-            position: fixed; top: 0; right: -400px; width: 350px; height: 100%;
-            background: rgba(10, 10, 10, 0.98); backdrop-filter: blur(30px);
-            z-index: 2000; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            border-left: 1px solid var(--border); padding: 30px; box-sizing: border-box; display: flex; flex-direction: column;
+            position: fixed; top: 0; right: -100%; width: 100%; max-width: 380px; height: 100%;
+            background: rgba(5, 5, 5, 0.98); backdrop-filter: blur(30px);
+            z-index: 2000; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-left: 1px solid var(--border); padding: 25px; box-sizing: border-box; display: flex; flex-direction: column;
         }
-        #cart-drawer.open { right: 0; box-shadow: -20px 0 50px rgba(0,0,0,0.5); }
+        #cart-drawer.open { right: 0; box-shadow: -20px 0 50px rgba(0,0,0,0.8); }
 
         .cart-item {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 15px; background: rgba(255,255,255,0.03); border-radius: 15px; margin-bottom: 10px;
+            padding: 12px; background: rgba(255,255,255,0.03); border-radius: 12px; margin-bottom: 8px;
+            font-size: 0.9rem;
         }
 
         /* SECTIONS */
-        .container { max-width: 1100px; margin: 100px auto 0; padding: 40px 20px; display: none; }
-        .container.active { display: block; animation: fadeIn 0.6s ease-out; }
+        .container { max-width: 1100px; margin: 90px auto 0; padding: 20px 15px; display: none; box-sizing: border-box; }
+        .container.active { display: block; animation: fadeIn 0.4s ease-out; }
 
         /* GEAR MOCKUP & COLOR SELECTOR */
-        .gear-container { display: flex; justify-content: center; align-items: center; gap: 40px; margin-top: 20px; position: relative;}
+        .gear-container { 
+            display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            gap: 25px; margin-top: 10px; position: relative; width: 100%;
+        }
         
         .color-selector {
-            display: flex; flex-direction: column; gap: 15px;
-            position: absolute; left: 10%;
+            display: flex; flex-direction: row; gap: 15px;
+            justify-content: center; width: 100%;
         }
         .color-btn {
-            width: 40px; height: 40px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.2);
+            width: 38px; height: 38px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.2);
             cursor: pointer; transition: 0.3s; position: relative;
         }
-        .color-btn:hover { transform: scale(1.2); border-color: white; }
+        .color-btn:hover { transform: scale(1.1); border-color: white; }
         .color-btn.active { border-color: white; transform: scale(1.1); box-shadow: 0 0 15px currentColor; }
 
         .app-mockup {
-            width: 320px; height: 580px; background-color: var(--app-bg);
-            border-radius: 45px; position: relative;
-            box-shadow: 0 40px 80px rgba(0,0,0,0.8); overflow: hidden; border: 8px solid #222;
+            width: 100%; max-width: 310px; height: 520px; background-color: var(--app-bg);
+            border-radius: 36px; position: relative;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8); overflow: hidden; border: 6px solid #222;
+            box-sizing: border-box;
         }
         .manteau { 
-            position: absolute; width: 260px; left: 30px; top: 120px; 
-            filter: drop-shadow(0 20px 30px rgba(0,0,0,0.5)); 
-            transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: absolute; width: 220px; left: calc(50% - 110px); top: 90px; 
+            filter: drop-shadow(0 15px 25px rgba(0,0,0,0.5)); 
+            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* BOUTIQUE */
-        .pricing-grid { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-top: 30px; }
+        /* BOUTIQUE / PASS */
+        .pricing-grid { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-top: 20px; }
         .price-card {
-            background: var(--card); border: 1px solid var(--border); padding: 25px;
-            border-radius: 32px; flex: 1; min-width: 280px; max-width: 320px; text-align: center;
-            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: var(--card); border: 1px solid var(--border); padding: 20px;
+            border-radius: 24px; flex: 1; min-width: 280px; max-width: 320px; text-align: center;
+            transition: 0.3s ease; box-sizing: border-box;
         }
-        .price-card:hover { transform: translateY(-10px); border-color: rgba(255,255,255,0.2); }
-        .pass-img { width: 100%; height: 180px; object-fit: cover; border-radius: 20px; margin-bottom: 15px; }
+        .price-card:hover { transform: translateY(-5px); border-color: rgba(255,255,255,0.2); }
+        .pass-img { width: 100%; height: 160px; object-fit: cover; border-radius: 16px; margin-bottom: 12px; }
 
         .btn-action {
-            display: block; width: 100%; padding: 16px; background: white; color: black;
-            border-radius: 14px; font-weight: 800; cursor: pointer; border: none; transition: 0.3s;
+            display: block; width: 100%; padding: 14px; background: white; color: black;
+            border-radius: 12px; font-weight: 800; cursor: pointer; border: none; transition: 0.2s;
+            font-size: 0.9rem;
         }
         .btn-action:hover { transform: scale(1.02); background: #eee; }
 
-        .viewer-card { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 32px; border: 1px solid var(--border); overflow: hidden; cursor: ew-resize; }
-        #card-render { width: 100%; height: 100%; background-image: url('Gemini_Generated_Image_v2ylc3v2ylc3v2yl (1).png'); background-size: 400% 200%; }
+        .viewer-card { 
+            width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 24px; 
+            border: 1px solid var(--border); overflow: hidden; cursor: ew-resize; touch-action: none; 
+        }
+        #card-render { width: 100%; height: 100%; background-image: url('Gemini_Generated_Image_v2ylc3v2ylc3v2yl (1).png'); background-size: 400% 200%; background-position: 0% 0%; }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        /* MEDIA QUERIES TABLETTE ET DESKTOP */
+        @media (min-width: 768px) {
+            .tab-nav { max-width: none; }
+            .gear-container { flex-direction: row; gap: 40px; margin-top: 20px; }
+            .color-selector { flex-direction: column; position: absolute; left: 10%; width: auto; }
+            .app-mockup { width: 320px; height: 580px; border-radius: 45px; border-width: 8px; }
+            .manteau { width: 260px; left: 30px; top: 120px; }
+            .container { margin: 100px auto 0; padding: 40px 20px; }
+            .viewer-card { border-radius: 32px; }
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
     <div class="cursor-glow" id="glow"></div>
+    <div id="notification-container"></div>
 
     <!-- MODALE AUTH -->
     <div id="auth-modal">
         <div class="auth-card">
-            <h2 id="auth-title" style="font-weight:900; margin-top:0;">CONNEXION</h2>
+            <h2 id="auth-title" style="font-weight:900; margin-top:0; font-size: 1.5rem; letter-spacing: 1px;">CONNEXION</h2>
             <input type="text" id="username" class="auth-input" placeholder="Identifiant">
             <input type="password" id="password" class="auth-input" placeholder="Mot de passe">
             <button class="btn-action" style="background:var(--accent); color:white; margin-bottom:15px;" onclick="handleAuth()">CONTINUER</button>
-            <p id="auth-switch" style="font-size:0.85rem; color:var(--text-dim); cursor:pointer;" onclick="toggleAuthMode()">Pas de compte ? Créer une session</p>
+            <p id="auth-switch" style="font-size:0.8rem; color:var(--text-dim); cursor:pointer; margin: 5px 0;" onclick="toggleAuthMode()">Pas de compte ? Créer une session</p>
             <button onclick="closeAuth()" style="background:none; border:none; color:var(--text-dim); margin-top:15px; cursor:pointer; font-size:0.8rem;">Fermer</button>
         </div>
     </div>
 
-    <!-- PANIER -->
+    <!-- PANIER TIROIR -->
     <div id="cart-drawer">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
-            <h3 style="margin:0; letter-spacing:1px;">MON PANIER</h3>
-            <button onclick="toggleCart()" style="background:none; border:none; color:white; cursor:pointer; font-size:1.2rem;">✕</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px;">
+            <h3 style="margin:0; letter-spacing:1px; font-weight:900; font-size:1.1rem;">MON PANIER</h3>
+            <button onclick="toggleCart()" style="background:none; border:none; color:white; cursor:pointer; font-size:1.2rem; padding:5px;">✕</button>
         </div>
-        <ul id="cart-items-list" style="list-style:none; padding:0; flex-grow:1; overflow-y:auto;"></ul>
-        <div style="border-top:1px solid var(--border); padding-top:20px;">
-            <div style="display:flex; justify-content:space-between; font-weight:900; font-size:1.2rem; margin-bottom:20px;">
+        <ul id="cart-items-list" style="list-style:none; padding:0; flex-grow:1; overflow-y:auto; margin:0;"></ul>
+        <div style="border-top:1px solid var(--border); padding-top:20px; margin-top: auto;">
+            <div style="display:flex; justify-content:space-between; font-weight:900; font-size:1.1rem; margin-bottom:15px;">
                 <span>TOTAL</span><span id="total-price" style="color:var(--accent)">0€</span>
             </div>
             <button class="btn-action" style="background:var(--accent); color:white;" onclick="processOrder()">VALIDER LA COMMANDE</button>
         </div>
     </div>
 
+    <!-- NAVIGATION HEADER -->
     <nav>
         <a href="#" class="logo">Infinity<span>.</span></a>
         <div class="tab-nav">
@@ -187,102 +259,92 @@
         </div>
         <div class="nav-right">
             <div class="cart-wrapper" onclick="toggleCart()">🛒 <span id="cart-count" class="cart-counter">0</span></div>
-            <button id="auth-trigger" class="tab-btn" style="background:white; color:black; font-weight:800; min-width:100px;" onclick="handleAuthBtnClick()">Accès</button>
+            <button id="auth-trigger" class="tab-btn" style="background:white; color:black; font-weight:800; padding: 6px 12px; border-radius: 8px;" onclick="handleAuthBtnClick()">Accès</button>
         </div>
     </nav>
 
     <!-- SECTION PROJET -->
     <main id="pres" class="container active">
-        <h1 style="text-align: center; font-weight: 900; font-size: 3.5rem; margin-bottom:10px;">FROZEN LAND <span style="color:var(--accent)">2026</span></h1>
-        <p style="text-align:center; color:var(--text-dim); margin-bottom:40px;">L'expérience ultime de la haute montagne.</p>
-        <iframe src="https://www.youtube.com/embed/8AZ2tnH36oA" style="width:100%; aspect-ratio:16/9; border-radius:32px; border:1px solid var(--border); box-shadow: 0 20px 50px rgba(0,0,0,0.5);" allowfullscreen></iframe>
+        <h1 style="text-align: center; font-weight: 900; font-size: 2.2rem; margin-bottom:10px; letter-spacing: -1px;">FROZEN LAND <span style="color:var(--accent)">2026</span></h1>
+        <p style="text-align:center; color:var(--text-dim); margin-bottom:25px; font-size: 0.9rem;">L'expérience ultime de la haute montagne.</p>
+        <div style="position: relative; width: 100%; aspect-ratio: 16/9; border-radius:24px; overflow: hidden; border:1px solid var(--border); box-shadow: 0 15px 35px rgba(0,0,0,0.5);">
+            <iframe src="https://www.youtube.com/embed/8AZ2tnH36oA" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" allowfullscreen></iframe>
+        </div>
     </main>
 
     <!-- SECTION 360 -->
     <section id="viewer-section" class="container">
-        <h2 style="text-align:center; font-size:2rem; margin-bottom:30px;">INSPECTION <span style="color:var(--accent)">360°</span></h2>
+        <h2 style="text-align:center; font-size:1.6rem; margin-bottom:20px; font-weight:900;">INSPECTION <span style="color:var(--accent)">360°</span></h2>
         <div class="viewer-card" id="viewer"><div id="card-render"></div></div>
     </section>
 
     <!-- SECTION GEAR AVEC SELECTEUR DE COULEURS -->
-<!-- Remplace la section GEAR par celle-ci -->
-<section id="gear" class="container">
-    <h2 style="text-align:center; font-size:2rem; margin-bottom:30px;">GEAR <span style="color:var(--accent)">CUSTOM</span></h2>
-    
-    <div class="gear-container">
-        <!-- Boutons Latéraux -->
-        <div class="color-selector">
-            <div class="color-btn active" style="background: #f1c40f; color: #f1c40f;" onclick="changeColor('Jaune', 'ChatGPT Image 7 mai 2026, 12_44_30.png', 299, this)"></div>
-            <div class="color-btn" style="background: #e74c3c; color: #e74c3c;" onclick="changeColor('Rouge', 'ChatGPT Image 7 mai 2026, 13_44_20.png', 349, this)"></div>
-            <div class="color-btn" style="background: #ffffff; color: #ffffff;" onclick="changeColor('Blanc', 'ChatGPT Image 7 mai 2026, 12_44_30.png', 299, this)"></div>
-        </div>
-
-        <div class="app-mockup">
-            <img src="ChatGPT Image 7 mai 2026, 12_44_30.png" class="manteau" id="gear-img">
-            
-            <!-- Nom et Prix sur la même ligne -->
-            <div style="position:absolute; bottom:110px; width:100%; text-align:center; font-weight:800; color:white; letter-spacing: 0.5px; font-size: 0.9rem;">
-                PULL <span id="current-color-name" style="color:var(--gold)">JAUNE</span> 
-                <span style="margin: 0 8px; opacity: 0.3;">|</span> 
-                <span id="current-gear-price" style="color: var(--text-main);">299€</span>
+    <section id="gear" class="container">
+        <h2 style="text-align:center; font-size:1.6rem; margin-bottom:20px; font-weight:900;">GEAR <span style="color:var(--accent)">CUSTOM</span></h2>
+        
+        <div class="gear-container">
+            <!-- Boutons de couleurs (Ligne horizontale sur mobile, Verticale sur PC) -->
+            <div class="color-selector">
+                <div class="color-btn active" style="background: #f1c40f; color: #f1c40f;" onclick="changeColor('Jaune', 'Gemini_Generated_Image_abvxs5abvxs5abvx.png', 299, this)"></div>
+                <div class="color-btn" style="background: #e74c3c; color: #e74c3c;" onclick="changeColor('Rouge', 'https://via.placeholder.com/260/e74c3c/ffffff?text=Pull+Rouge', 349, this)"></div>
+                <div class="color-btn" style="background: #ffffff; color: #ffffff;" onclick="changeColor('Blanc', 'Gemini_Generated_Image_abvxs5abvxs5abvx.png', 299, this)"></div>
             </div>
-            
-            <button class="btn-action" id="gear-add-btn" style="position:absolute; bottom:30px; width:80%; left:10%; background:var(--accent); color:white;" onclick="addGearToCart()">AJOUTER AU PANIER</button>
+
+            <!-- Mockup Smartphone -->
+            <div class="app-mockup">
+                <img src="Gemini_Generated_Image_abvxs5abvxs5abvx.png" class="manteau" id="gear-img" alt="Equipement">
+                
+                <!-- Nom et Prix -->
+                <div style="position:absolute; bottom:95px; width:100%; text-align:center; font-weight:800; color:white; letter-spacing: 0.5px; font-size: 0.85rem;">
+                    PULL <span id="current-color-name" style="color:var(--gold)">JAUNE</span> 
+                    <span style="margin: 0 6px; opacity: 0.3;">|</span> 
+                    <span id="current-gear-price" style="color: var(--text-main);">299€</span>
+                </div>
+                
+                <button class="btn-action" id="gear-add-btn" style="position:absolute; bottom:25px; width:82%; left:9%; background:var(--accent); color:white; font-size: 0.85rem;" onclick="addGearToCart()">AJOUTER AU PANIER</button>
+            </div>
         </div>
-    </div>
-</section>
-
-<script>
-    // --- MISE À JOUR DE LA FONCTION JS ---
-    function changeColor(colorName, imgSrc, price, btn) {
-        const imgEl = document.getElementById('gear-img');
-        imgEl.style.opacity = "0";
-        
-        setTimeout(() => {
-            imgEl.src = imgSrc;
-            imgEl.style.opacity = "1";
-        }, 300);
-
-        // Mise à jour du nom, de la couleur du texte et du prix à côté
-        document.getElementById('current-color-name').innerText = colorName.toUpperCase();
-        document.getElementById('current-color-name').style.color = btn.style.background;
-        document.getElementById('current-gear-price').innerText = price + "€";
-        
-        // Update pour le panier
-        selectedGear.name = `Pull Infinity ${colorName}`;
-        selectedGear.price = price;
-
-        document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-    }
-</script>
+    </section>
 
     <!-- SECTION PASS -->
     <section id="shop" class="container">
-        <h2 style="text-align:center; font-size:2rem; margin-bottom:30px;">VOTRE <span style="color:var(--accent)">ACCÈS</span></h2>
+        <h2 style="text-align:center; font-size:1.6rem; margin-bottom:20px; font-weight:900;">VOTRE <span style="color:var(--accent)">ACCÈS</span></h2>
         <div class="pricing-grid">
             <div class="price-card" style="border-top: 4px solid var(--eco);">
                 <img src="WhatsApp Image 2026-04-18 at 17.39.49.jpeg" class="pass-img" alt="Eco">
-                <h3 style="color:var(--eco)">PASS ECO</h3>
-                <div style="font-size:1.8rem; font-weight:900; margin:15px 0;">450€</div>
-                <button class="btn-action" onclick="addToCart(this, 'Pass Eco', 450)">SÉLECTIONNER</button>
+                <h3 style="color:var(--eco); margin: 0 0 10px; font-weight:800; font-size:1.2rem;">PASS ECO</h3>
+                <div style="font-size:1.6rem; font-weight:900; margin:10px 0;">4500€</div>
+                <button class="btn-action" onclick="addToCart(this, 'Pass Eco', 4500)">SÉLECTIONNER</button>
             </div>
             <div class="price-card" style="border-top: 4px solid var(--gold);">
                 <img src="WhatsApp Image 2026-04-18 at 17.39.49 (1).jpeg" class="pass-img" alt="Gold">
-                <h3 style="color:var(--gold)">GOLD PASS</h3>
-                <div style="font-size:1.8rem; font-weight:900; margin:15px 0;">1200€</div>
-                <button class="btn-action" style="background:var(--gold); color:white;" onclick="addToCart(this, 'Pass Gold', 1200)">SÉLECTIONNER</button>
+                <h3 style="color:var(--gold); margin: 0 0 10px; font-weight:800; font-size:1.2rem;">GOLD PASS</h3>
+                <div style="font-size:1.6rem; font-weight:900; margin:10px 0;">12000€</div>
+                <button class="btn-action" style="background:var(--gold); color:white;" onclick="addToCart(this, 'Pass Gold', 12000)">SÉLECTIONNER</button>
             </div>
             <div class="price-card" style="border-top: 4px solid var(--premium); background: linear-gradient(180deg, #0a0a0a 0%, #001a2e 100%);">
                 <img src="WhatsApp Image 2026-04-18 at 17.39.49 (2).jpeg" class="pass-img" alt="Premium">
-                <h3 style="color:var(--premium)">PASS PREMIUM</h3>
-                <div style="font-size:1.8rem; font-weight:900; margin:15px 0;">9999€</div>
-                <button class="btn-action" style="background:var(--premium); color:white;" onclick="addToCart(this, 'Pass Premium', 9999)">SÉLECTIONNER</button>
+                <h3 style="color:var(--premium); margin: 0 0 10px; font-weight:800; font-size:1.2rem;">PASS PREMIUM</h3>
+                <div style="font-size:1.6rem; font-weight:900; margin:10px 0;">19999€</div>
+                <button class="btn-action" style="background:var(--premium); color:white;" onclick="addToCart(this, 'Pass Premium', 19999)">SÉLECTIONNER</button>
             </div>
         </div>
     </section>
 
     <script>
+        // --- TOAST NOTIFICATIONS CUSTOMS ---
+        function showNotification(message, type = 'info') {
+            const container = document.getElementById('notification-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<span>${message}</span><span style="margin-left:15px; cursor:pointer;" onclick="this.parentElement.remove()">✕</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.animation = 'fadeIn 0.3s ease reverse forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
         // --- ETAT GLOBAL ---
         let cart = JSON.parse(localStorage.getItem('infinity_cart')) || [];
         let currentUser = sessionStorage.getItem('infinity_user') || null;
@@ -297,23 +359,24 @@
         };
 
         // --- GESTION GEAR (PULLS) ---
-        function changeColor(colorName, imgSrc, btn) {
-            // Mise à jour visuelle image
+        function changeColor(colorName, imgSrc, price, btn) {
             const imgEl = document.getElementById('gear-img');
             imgEl.style.opacity = "0";
+            
             setTimeout(() => {
                 imgEl.src = imgSrc;
                 imgEl.style.opacity = "1";
             }, 300);
 
-            // Mise à jour texte
+            // Mise à jour visuelle des textes
             document.getElementById('current-color-name').innerText = colorName.toUpperCase();
             document.getElementById('current-color-name').style.color = btn.style.background;
+            document.getElementById('current-gear-price').innerText = price + "€";
             
-            // Update sélection pour le panier
+            // Mise à jour de la sélection
             selectedGear.name = `Pull Infinity ${colorName}`;
+            selectedGear.price = price;
 
-            // Style boutons
             document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
         }
@@ -328,7 +391,12 @@
             document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
-            evt.currentTarget.classList.add('active');
+            
+            // Gère l'activation du bouton ciblé ou de son homologue si cliqué ailleurs
+            const targetText = evt.currentTarget.innerText;
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                if(btn.innerText === targetText) btn.classList.add('active');
+            });
         }
 
         // --- AUTHENTIFICATION ---
@@ -338,6 +406,7 @@
                     currentUser = null;
                     sessionStorage.removeItem('infinity_user');
                     updateAuthUI();
+                    showNotification("Déconnexion réussie.", "info");
                 }
             } else {
                 openAuth();
@@ -345,30 +414,48 @@
         }
         function openAuth() { document.getElementById('auth-modal').style.display = 'flex'; }
         function closeAuth() { document.getElementById('auth-modal').style.display = 'none'; }
+        
         function toggleAuthMode() {
             isLoginMode = !isLoginMode;
             document.getElementById('auth-title').innerText = isLoginMode ? "CONNEXION" : "INSCRIPTION";
             document.getElementById('auth-switch').innerText = isLoginMode ? "Pas de compte ? Créer une session" : "Déjà membre ? Se connecter";
         }
+        
         function handleAuth() {
             const u = document.getElementById('username').value.trim();
             const p = document.getElementById('password').value.trim();
             const db = JSON.parse(localStorage.getItem('infinity_users_db')) || {};
-            if(!u || !p) return alert("Veuillez remplir tous les champs.");
+            
+            if(!u || !p) {
+                showNotification("Veuillez remplir tous les champs.", "error");
+                return;
+            }
             if(isLoginMode) {
-                if(db[u] === p) { login(u); } else { alert("Identifiants incorrects."); }
+                if(db[u] === p) { 
+                    login(u); 
+                } else { 
+                    showNotification("Identifiants incorrects.", "error");
+                }
             } else {
-                if(db[u]) return alert("Cet identifiant existe déjà.");
+                if(db[u]) {
+                    showNotification("Cet identifiant existe déjà.", "error");
+                    return;
+                }
                 db[u] = p; 
                 localStorage.setItem('infinity_users_db', JSON.stringify(db));
-                alert("Compte créé avec succès !"); toggleAuthMode();
+                showNotification("Compte créé avec succès !", "success"); 
+                toggleAuthMode();
             }
         }
+        
         function login(u) {
             currentUser = u;
             sessionStorage.setItem('infinity_user', u);
-            updateAuthUI(); closeAuth();
+            updateAuthUI(); 
+            closeAuth();
+            showNotification(`Bienvenue, ${u} !`, "success");
         }
+        
         function updateAuthUI() {
             const btn = document.getElementById('auth-trigger');
             btn.innerText = currentUser ? currentUser.toUpperCase() : "Accès";
@@ -378,54 +465,107 @@
 
         // --- PANIER ---
         function toggleCart() { document.getElementById('cart-drawer').classList.toggle('open'); }
+        
         function addToCart(btn, name, price) {
-            if(!currentUser) { alert("Veuillez vous connecter."); return openAuth(); }
+            if(!currentUser) { 
+                showNotification("Veuillez vous connecter pour ajouter des articles.", "error"); 
+                return openAuth(); 
+            }
             cart.push({ id: Date.now(), name, price });
             localStorage.setItem('infinity_cart', JSON.stringify(cart));
             updateCartUI();
+            
             const originalText = btn.innerText;
             btn.innerText = "✓ AJOUTÉ";
+            const originalBg = btn.style.background;
             btn.style.background = "var(--success)";
-            setTimeout(() => { btn.innerText = originalText; btn.style.background = ""; }, 1000);
+            
+            showNotification(`${name} ajouté au panier !`, "success");
+            
+            setTimeout(() => { 
+                btn.innerText = originalText; 
+                btn.style.background = originalBg; 
+            }, 1000);
         }
+        
         function removeFromCart(id) {
             cart = cart.filter(i => i.id !== id);
             localStorage.setItem('infinity_cart', JSON.stringify(cart));
             updateCartUI();
+            showNotification("Article retiré du panier.", "info");
         }
+        
         function updateCartUI() {
             const list = document.getElementById('cart-items-list');
             const totalEl = document.getElementById('total-price');
             const countEl = document.getElementById('cart-count');
-            list.innerHTML = cart.length === 0 ? `<li style="text-align:center; color:var(--text-dim); margin-top:50px;">Vide</li>` : 
-                cart.map(i => `<li class="cart-item"><div><b>${i.name}</b><br>${i.price}€</div><button onclick="removeFromCart(${i.id})" style="background:none; border:none; color:red; cursor:pointer;">✕</button></li>`).join('');
+            
+            list.innerHTML = cart.length === 0 ? 
+                `<li style="text-align:center; color:var(--text-dim); margin-top:50px;">Votre panier est vide</li>` : 
+                cart.map(i => `<li class="cart-item"><div><b>${i.name}</b><br>${i.price}€</div><button onclick="removeFromCart(${i.id})" style="background:none; border:none; color:red; cursor:pointer; font-size:1.1rem; padding: 5px;">✕</button></li>`).join('');
+            
             const total = cart.reduce((s, i) => s + i.price, 0);
             countEl.innerText = cart.length;
             totalEl.innerText = total + "€";
         }
+        
         function processOrder() {
             if(cart.length === 0) return;
-            alert(`Commande confirmée pour ${currentUser} !`);
-            cart = []; localStorage.setItem('infinity_cart', "[]"); updateCartUI(); toggleCart();
+            showNotification(`Commande de ${document.getElementById('total-price').innerText} validée pour ${currentUser} !`, "gold");
+            cart = []; 
+            localStorage.setItem('infinity_cart', "[]"); 
+            updateCartUI(); 
+            toggleCart();
         }
 
-        // --- EFFETS ---
-        let currentRot = 0, targetRot = 0, isDragging = false;
-        window.onmousemove = (e) => {
-            const glow = document.getElementById('glow');
-            glow.style.left = e.clientX + 'px'; glow.style.top = e.clientY + 'px';
-        };
+        // --- EFFETS ET CONTRÔLEUR 360 UNIFIÉ (TACTILE & SOURIS) ---
+        let currentRot = 0, targetRot = 0, isDragging = false, lastX = 0;
+        
+        window.addEventListener('pointermove', (e) => {
+            // Suivi du curseur glow uniquement pour les souris (PC)
+            if(e.pointerType === 'mouse') {
+                const glow = document.getElementById('glow');
+                glow.style.left = e.clientX + 'px'; 
+                glow.style.top = e.clientY + 'px';
+            }
+        });
+
         function animate360() {
             currentRot += (targetRot - currentRot) * 0.1;
             let frame = Math.round(Math.abs(currentRot / 45)) % 8;
             const render = document.getElementById('card-render');
-            if(render) render.style.backgroundPosition = `${(frame % 4) * 33.33}% ${Math.floor(frame / 4) * 100}%`;
+            if(render) {
+                render.style.backgroundPosition = `${(frame % 4) * 33.33}% ${Math.floor(frame / 4) * 100}%`;
+            }
             requestAnimationFrame(animate360);
         }
+
         const viewer = document.getElementById('viewer');
-        viewer.onmousedown = () => isDragging = true;
-        window.onmouseup = () => isDragging = false;
-        window.onmousemove = (e) => { if(isDragging) targetRot += e.movementX * 0.8; };
+        
+        // Pointer Events unifiés pour gérer souris + écrans tactiles mobiles
+        viewer.addEventListener('pointerdown', (e) => {
+            isDragging = true;
+            lastX = e.clientX;
+            viewer.setPointerCapture(e.pointerId);
+        });
+
+        viewer.addEventListener('pointermove', (e) => {
+            if(isDragging) {
+                const deltaX = e.clientX - lastX;
+                targetRot += deltaX * 0.8;
+                lastX = e.clientX;
+            }
+        });
+
+        const endDrag = (e) => {
+            if (isDragging) {
+                isDragging = false;
+                viewer.releasePointerCapture(e.pointerId);
+            }
+        };
+
+        viewer.addEventListener('pointerup', endDrag);
+        viewer.addEventListener('pointercancel', endDrag);
     </script>
 </body>
 </html>
